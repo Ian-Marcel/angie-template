@@ -1,7 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-angie-build() {
-    docker exec desktop-angie angie -V
+angie() {
+    docker exec desktop-angie angie $@
 }
 
-angie-build | sed '1,2d'
+angie -V >/tmp/angie-build 2>&1
+
+cat /tmp/angie-build | tr ' ' '\n' | grep path | cut -d= -f2
