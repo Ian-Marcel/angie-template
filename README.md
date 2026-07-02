@@ -1,4 +1,4 @@
-# Angie Docker Image (Templated)
+# angie-template++
 
 This Docker image extends Angie’s templated base to support custom user permissions and group configurations, addressing issue #162 (permission conflicts in shared environments).
 
