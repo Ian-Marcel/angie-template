@@ -1,6 +1,6 @@
-# angie-template++
+# angie-template+
 
-This Docker image extends Angie’s templated base to support custom user permissions and group configurations, addressing issue #162 (permission conflicts in shared environments).
+This Docker image extends Angie's templated base to support custom user permissions and group configurations, addressing issue [#162](https://github.com/webserver-llc/angie/issues/162#issuecomment-4860549500).
 
 ## Key Features
 
@@ -13,9 +13,9 @@ This Docker image extends Angie’s templated base to support custom user permis
 ### docker run
 
 ```bash
-docker run --rm -e UID=1000 -e GID=1000 \
+docker run -e UID=1000 -e GID=1000 \
   -v ./html:/usr/share/angie/html:ro \
-  -p 8080:80 myangie
+  -p 8080:80 dockerizedian/angie-template-plus:latest
 ```
 
 ### docker compose
@@ -23,7 +23,7 @@ docker run --rm -e UID=1000 -e GID=1000 \
 ```yaml
 services:
   angie:
-    build: .
+    image: dockerizedian/angie-template-plus:latest
     environment:
       UID: "1000"
       GID: "1000"
