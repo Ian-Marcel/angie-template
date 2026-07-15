@@ -4,10 +4,11 @@ INDEX=0
 nullifier=$RANDOM-null_$RANDOM
 UPGRADE=false
 
+docker pull --quiet docker.angie.software/angie:templated
 OFICIAL_IMG_V=$(docker run -it --rm docker.angie.software/angie:templated angie -v | grep -i 'Angie version' | sed 's/[^0-9.]//g')
-echo "Oficial angie image version: $OFICIAL_IMG_V"
-
 PLUS_IMG_V=$(docker run -it --rm dockerizedian/angie-template-plus:latest angie -v | grep -i 'Angie version' | sed 's/[^0-9.]//g')
+
+echo "Oficial angie image version: $OFICIAL_IMG_V"
 echo "angie-template-plus image version: $PLUS_IMG_V"
 
 IFS=. read -ra PLUSVL < <(echo "$PLUS_IMG_V")
@@ -23,10 +24,8 @@ while [ ${OFICIALVL[$INDEX]:-$nullifier} != $nullifier ]; do
 done
 if [ $UPGRADE = false ]; then
     echo 'Nothing new...'
-    exit
+    exit 0
 fi
-
-docker pull --quiet docker.angie.software/angie:templated
 
 PLUSV=$(docker run -it --rm docker.angie.software/angie:templated angie -v | grep -i 'Angie version' | sed 's/[^0-9.]//g')
 
@@ -41,7 +40,6 @@ if [ "${1:-}" = "deploy" ]; then
         docker image rm dockerizedian/angie-template-plus:latest >/dev/null 2>&1
         exit 1
     fi
-    docker image rm dockerizedian/angie-template-plus:$PLUS_IMG_V
 else
-    docker build . --tag --quiet dockerizedian/angie-template-plus:test
+    docker build . --quiet --tag dockerizedian/angie-template-plus:test
 fi
