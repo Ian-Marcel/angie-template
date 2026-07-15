@@ -1,15 +1,47 @@
-#!/bin/sh
+#!/bin/env bash
+
+INDEX=0
+nullifier=$RANDOM-null_$RANDOM
+UPGRADE=false
+
+OFICIAL_IMG_V=$(docker run -it --rm docker.angie.software/angie:templated angie -v | grep -i 'Angie version' | sed 's/[^0-9.]//g')
+echo "Oficial angie image version: $OFICIAL_IMG_V"
+
+PLUS_IMG_V=$(docker run -it --rm dockerizedian/angie-template-plus:latest angie -v | grep -i 'Angie version' | sed 's/[^0-9.]//g')
+echo "angie-template-plus image version: $PLUS_IMG_V"
+
+IFS=. read -ra PLUSVL < <(echo "$PLUS_IMG_V")
+IFS=. read -ra OFICIALVL < <(echo "$OFICIAL_IMG_V")
+
+while [ ${OFICIALVL[$INDEX]:-$nullifier} != $nullifier ]; do
+    if [ ${OFICIALVL[$INDEX]} -gt ${PLUSVL[$INDEX]} ]; then
+        UPGRADE=true
+        echo "Upgrade available!"
+        break
+    fi
+    ((INDEX++))
+done
+if [ $UPGRADE = false ]; then
+    echo 'Nothing new...'
+    exit
+fi
 
 docker pull --quiet docker.angie.software/angie:templated
 
-docker run -it --rm docker.angie.software/angie:templated angie -v | grep -i 'Angie version' | sed 's/[^0-9.]//g' >/tmp/angie-plus-version
+PLUSV=$(docker run -it --rm docker.angie.software/angie:templated angie -v | grep -i 'Angie version' | sed 's/[^0-9.]//g')
 
-if [ ${1:-} = deploy ]; then
-    docker build . --quiet --tag dockerizedian/angie-template-plus:$(cat /tmp/angie-plus-version)
+if [ "${1:-}" = "deploy" ]; then
+    docker build . --quiet --tag dockerizedian/angie-template-plus:$PLUSV
     docker build . --quiet --tag dockerizedian/angie-template-plus:latest
 
-    docker push --all-tags --quiet dockerizedian/angie-template-plus
-    docker image rm --all-tags dockerizedian/angie-template-plus
+    docker push --all-tags --quiet dockerizedian/angie-template-plus || false
+    if [ $? -gt 0 ]; then
+        echo -e "[ FATAL ] Failed to push image to registry. Are you logged? \n[ FATAL ] Aborting entire operation!"
+        docker image rm dockerizedian/angie-template-plus:$PLUSV >/dev/null 2>&1
+        docker image rm dockerizedian/angie-template-plus:latest >/dev/null 2>&1
+        exit 1
+    fi
+    docker image rm dockerizedian/angie-template-plus:$PLUS_IMG_V
 else
-    docker build . --tag angie-template-plus-test_image
+    docker build . --tag --quiet dockerizedian/angie-template-plus:test
 fi
