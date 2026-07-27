@@ -4,7 +4,7 @@ This Docker image extends Angie's templated base to support custom user permissi
 
 ## Key Features
 
-- Non-root execution: Runs Angie under a dedicated user (UID=100 by default).
+- Non-root execution: Runs Angie under a dedicated user, can be edited through variables PUID and PGID (PUID=100 by default).
 - Group alignment: Ensures www-data (common for web servers) has access to Angie’s files.
 - Templated flexibility: Inherits Angie’s templating capabilities while enforcing custom permissions.
 
@@ -13,7 +13,7 @@ This Docker image extends Angie's templated base to support custom user permissi
 ### docker run
 
 ```bash
-docker run -e UID=1000 -e GID=1000 \
+docker run -e PUID=1000 -e PGID=1000 \
   -v ./html:/usr/share/angie/html:ro \
   -p 8080:80 dockerizedian/angie-template-plus:latest
 ```
@@ -25,8 +25,8 @@ services:
   angie:
     image: dockerizedian/angie-template-plus:latest
     environment:
-      UID: "1000"
-      GID: "1000"
+      PUID: "1000"
+      PGID: "1000"
     ports:
       - "8080:80"
 ```
