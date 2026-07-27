@@ -2,8 +2,8 @@
 FROM docker.angie.software/angie:templated
 
 # Default UID/GID for the angie user; override at build/run time.
-ENV UID=100
-ENV GID=101
+ENV PUID=100
+ENV PGID=101
 
 # Custom entrypoint that remaps UID/GID before Angie starts.
 COPY ./entrypoint.sh /entrypoint.sh
