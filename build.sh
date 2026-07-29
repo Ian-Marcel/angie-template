@@ -4,15 +4,17 @@ INDEX=0
 nullifier=$RANDOM-null_$RANDOM
 UPGRADE=false
 
+echo "[ INFO ] Pulling images"
 docker pull --quiet docker.angie.software/angie:templated
+docker pull --quiet dockerizedian/angie-template-plus:latest
 OFICIAL_IMG_V=$(docker run -it --rm docker.angie.software/angie:templated angie -v | grep -i 'Angie version' | sed 's/[^0-9.]//g')
 PLUS_IMG_V=$(docker run -it --rm dockerizedian/angie-template-plus:latest angie -v | grep -i 'Angie version' | sed 's/[^0-9.]//g')
 
-echo "[ INFO ] Oficial angie image version: $OFICIAL_IMG_V"
-echo "[ INFO ] angie-template-plus image version: $PLUS_IMG_V"
+echo "[ INFO ] Latest oficial angie image version: $OFICIAL_IMG_V"
+echo "[ INFO ] Latest angie-template-plus image version: $PLUS_IMG_V"
 
-IFS=. read -ra PLUSVL < <(echo "$PLUS_IMG_V")
-IFS=. read -ra OFICIALVL < <(echo "$OFICIAL_IMG_V")
+IFS=. read -ra PLUSVL <<<"$PLUS_IMG_V"
+IFS=. read -ra OFICIALVL <<<"$OFICIAL_IMG_V"
 
 while [ ${OFICIALVL[$INDEX]:-$nullifier} != $nullifier ]; do
     if [ ${OFICIALVL[$INDEX]} -gt ${PLUSVL[$INDEX]} ]; then
